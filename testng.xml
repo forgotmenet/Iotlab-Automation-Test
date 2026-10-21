@@ -1,0 +1,8 @@
+<suite name="PlaywrightSuite">
+        <test name="FirstTests">
+            <classes>
+                <class name="iotlab.test.tests.FirstTest"/>
+            </classes>
+        </test>
+</suite>
+

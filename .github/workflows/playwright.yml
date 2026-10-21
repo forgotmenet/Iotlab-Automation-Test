@@ -1,0 +1,27 @@
+name: Playwright Automation Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy mã nguồn từ GitHub
+        uses: actions/checkout@v4
+
+      - name: Cài đặt Java JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Cài đặt trình duyệt Playwright (Chỉ Chromium)
+        run: mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"
+
+      - name: Chạy Test Cases (Mặc định chạy ngầm)
+        run: mvn test
