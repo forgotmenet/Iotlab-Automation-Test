@@ -7,11 +7,8 @@ import io.qameta.allure.Step;
 import iotlab.test.base.BasePage;
 
 public class HomePage extends BasePage {
-
-    // ===== LOCATORS (kiểm tra/sửa bằng codegen) =====
-    private final Locator userMenu = page.locator("[aria-label=Username]"); // avatar góc phải, chỉ có sau khi đăng nhập
+    private final Locator userMenu = page.locator("[aria-label=Username]");
     private final Locator logoutButton = page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Logout"));
-    // ===== HẾT LOCATORS =====
 
     public HomePage(Page page) {
         super(page);
@@ -21,7 +18,7 @@ public class HomePage extends BasePage {
         return userMenu;
     }
 
-    @Step("Đăng xuất")
+    @Step("Log out")
     public void logout() {
         click(userMenu);
         click(logoutButton);

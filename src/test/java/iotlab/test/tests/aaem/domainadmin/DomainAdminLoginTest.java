@@ -14,12 +14,12 @@ import org.testng.annotations.Test;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-@Epic("Quan trắc môi trường")
+@Epic("AAEM")
 @Feature("DomainAdmin")
-@Story("Đăng nhập")
+@Story("Login")
 public class DomainAdminLoginTest extends BaseTest {
 
-    @Test(description = "DomainAdmin đăng nhập thành công với tài khoản hợp lệ")
+    @Test(description = "Verify DomainAdmin logs in successfully with valid credentials")
     @Severity(SeverityLevel.CRITICAL)
     public void loginWithValidAccount() {
         new LoginPage(page).open().login(Role.DOMAIN_ADMIN.username(), Role.DOMAIN_ADMIN.password());
@@ -27,7 +27,7 @@ public class DomainAdminLoginTest extends BaseTest {
         assertThat(new HomePage(page).getUserMenu()).isVisible();
     }
 
-    @Test(description = "DomainAdmin đăng nhập sai mật khẩu thì vẫn ở lại form đăng nhập")
+    @Test(description = "Verify DomainAdmin remains on login form when entering wrong password")
     @Severity(SeverityLevel.NORMAL)
     public void loginWithWrongPassword() {
         LoginPage loginPage = new LoginPage(page).open();
@@ -37,7 +37,7 @@ public class DomainAdminLoginTest extends BaseTest {
         assertThat(loginPage.getUsernameInput()).isVisible();
     }
 
-    @Test(description = "DomainAdmin để trống tài khoản và mật khẩu thì không đăng nhập được")
+    @Test(description = "Verify DomainAdmin cannot login with empty username and password")
     @Severity(SeverityLevel.MINOR)
     public void loginWithEmptyFields() {
         LoginPage loginPage = new LoginPage(page).open();
@@ -46,7 +46,7 @@ public class DomainAdminLoginTest extends BaseTest {
         assertThat(loginPage.getLoginButton()).isVisible();
     }
 
-    @Test(description = "DomainAdmin đăng xuất thì quay về form đăng nhập")
+    @Test(description = "Verify DomainAdmin is redirected to login form after logging out")
     @Severity(SeverityLevel.NORMAL)
     public void logout() {
         new LoginPage(page).open().login(Role.DOMAIN_ADMIN.username(), Role.DOMAIN_ADMIN.password());

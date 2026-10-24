@@ -14,12 +14,12 @@ import org.testng.annotations.Test;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-@Epic("Quan trắc môi trường")
+@Epic("AAEM")
 @Feature("Farmer")
-@Story("Đăng nhập")
+@Story("Login")
 public class FarmerLoginTest extends BaseTest {
 
-    @Test(description = "Farmer đăng nhập thành công với tài khoản hợp lệ")
+    @Test(description = "Verify Farmer logs in successfully with valid credentials")
     @Severity(SeverityLevel.CRITICAL)
     public void loginWithValidAccount() {
         new LoginPage(page).open().login(Role.FARMER.username(), Role.FARMER.password());
@@ -27,7 +27,7 @@ public class FarmerLoginTest extends BaseTest {
         assertThat(new HomePage(page).getUserMenu()).isVisible();
     }
 
-    @Test(description = "Farmer đăng nhập sai mật khẩu thì vẫn ở lại form đăng nhập")
+    @Test(description = "Verify Farmer remains on login form when entering wrong password")
     @Severity(SeverityLevel.NORMAL)
     public void loginWithWrongPassword() {
         LoginPage loginPage = new LoginPage(page).open();
@@ -37,7 +37,7 @@ public class FarmerLoginTest extends BaseTest {
         assertThat(loginPage.getUsernameInput()).isVisible();
     }
 
-    @Test(description = "Farmer đăng xuất thì quay về form đăng nhập")
+    @Test(description = "Verify Farmer is redirected to login form after logging out")
     @Severity(SeverityLevel.NORMAL)
     public void logout() {
         new LoginPage(page).open().login(Role.FARMER.username(), Role.FARMER.password());

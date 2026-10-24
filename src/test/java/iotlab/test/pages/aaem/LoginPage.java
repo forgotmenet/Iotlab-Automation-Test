@@ -17,14 +17,14 @@ public class LoginPage extends BasePage {
         super(page);
     }
 
-    @Step("Mở trang chủ (tự chuyển sang trang đăng nhập Keycloak)")
+    @Step("Open login page and redirect to Keycloak")
     public LoginPage open() {
         page.navigate(ConfigReader.get("AAEM_BASE_URL"));
         usernameInput.waitFor();
         return this;
     }
 
-    @Step("Đăng nhập với tài khoản: {username}")
+    @Step("Login with account: {username}")
     public void login(String username, String password) {
         fill(usernameInput, username);
         fill(passwordInput, password);

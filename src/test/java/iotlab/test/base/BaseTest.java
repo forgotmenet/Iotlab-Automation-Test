@@ -23,16 +23,12 @@ public class BaseTest {
 
     @BeforeMethod
     public void launchBrowser() {
-        // 1. Tạo Map môi trường cho Playwright
         Map<String, String> env = new HashMap<>(System.getenv());
 
-        // Nếu đang chạy trên máy Local (không có biến CI của GitHub Actions)
         if (System.getenv("CI") == null) {
-            // Chặn Playwright.create() tự động download file kiểm tra từ mạng
             env.put("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD", "1");
         }
 
-        // Khởi tạo Playwright với cấu hình đã chặn download
         playwright = Playwright.create(new Playwright.CreateOptions().setEnv(env));
 
         boolean isHeadless = ConfigReader.getBoolean("HEADLESS", true);
@@ -45,7 +41,6 @@ public class BaseTest {
         }
 
         browser = playwright.chromium().launch(options);
-        // Mỗi test dùng một context riêng để cô lập session đăng nhập giữa các role
         context = browser.newContext();
         page = context.newPage();
         page.setDefaultTimeout(ConfigReader.getInt("TIMEOUT_MS"));
@@ -55,7 +50,7 @@ public class BaseTest {
     public void tearDown(ITestResult result) {
         if (result.getStatus() == ITestResult.FAILURE && page != null) {
             byte[] screenshot = page.screenshot(new Page.ScreenshotOptions().setFullPage(true));
-            Allure.attachment("Ảnh lỗi (Failure Screenshot)", new ByteArrayInputStream(screenshot));
+            Allure.attachment("Failure Screenshot", new ByteArrayInputStream(screenshot));
         }
 
         if (browser != null) browser.close();
