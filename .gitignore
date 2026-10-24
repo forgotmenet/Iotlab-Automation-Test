@@ -41,3 +41,6 @@ build/
 .allure/
 .idea/
 allure-results/
+
+### Local secrets ###
+src/test/resources/config.local.properties

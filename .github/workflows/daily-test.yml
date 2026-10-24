@@ -1,0 +1,92 @@
+name: Daily Scheduled & Manual Automation Test
+
+on:
+  schedule:
+    # 00:00 giờ Việt Nam (UTC+7) tương ứng với 17:00 giờ UTC mỗi ngày
+    - cron: '0 17 * * *'
+  # Cho phép bấm nút "Run workflow" thủ công trong tab Actions bất cứ lúc nào
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  test-execution:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Luôn lấy code mới nhất trên nhánh chạy (mặc định là main)
+      - name: Checkout latest code
+        uses: actions/checkout@v4
+
+      # 2. Cài đặt môi trường Java JDK 21 (khớp với pom.xml của dự án)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # 3. Cài đặt trình duyệt Playwright và dependencies trên Linux
+      - name: Install Playwright Browsers & Dependencies
+        run: mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps chromium"
+
+      # 4. Thực thi chạy TestNG Tests
+      # Mật khẩu đọc từ GitHub Secrets (nếu đã cấu hình)
+      - name: Run Playwright Tests
+        env:
+          HEADLESS: "true"
+          DOMAIN_ADMIN_PASSWORD: ${{ secrets.DOMAIN_ADMIN_PASSWORD }}
+          FARMER_PASSWORD: ${{ secrets.FARMER_PASSWORD }}
+        run: mvn clean test
+        continue-on-error: true
+
+      # 5. Tải lịch sử Allure cũ từ nhánh gh-pages (để giữ trend báo cáo)
+      - name: Load Allure history
+        uses: actions/checkout@v4
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      # 6. Tạo trang báo cáo Allure Report
+      - name: Generate Allure Report
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        with:
+          allure_results: target/allure-results
+          allure_history: allure-history
+
+      # 7. Xuất bản báo cáo Allure lên GitHub Pages
+      - name: Deploy Allure Report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
+
+      # 8. Gửi thông báo kết quả kiểm thử về Telegram Group
+      - name: Send Notification to Telegram
+        if: always()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || '8359972220:AAFqYoG2mEgEG33S2iRabnizZZZNAaE6ks4' }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '-5488720535' }}
+        run: |
+          REPORT_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+
+          MESSAGE="🔔 *[BÁO CÁO AUTOMATION TEST - IOT LAB]*%0A"
+          MESSAGE+="%0A📅 *Thời gian:* $(TZ='Asia/Ho_Chi_Minh' date +'%d/%m/%Y %H:%M:%S') (Giờ VN)"
+          MESSAGE+="%0A🌿 *Phân hệ:* Quan trắc môi trường (AAEM)"
+          MESSAGE+="%0A📌 *Commit:* \`${{ github.sha }}\`"
+          MESSAGE+="%0A👤 *Kích hoạt bởi:* \`${{ github.actor }}\`"
+          MESSAGE+="%0A"
+          MESSAGE+="%0A👉 *Xem chi tiết báo cáo và ảnh chụp màn hình lỗi tại:*%0A$REPORT_URL"
+
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAM_CHAT_ID}" \
+            -d "text=${MESSAGE}" \
+            -d "parse_mode=Markdown"

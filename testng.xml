@@ -1,8 +1,8 @@
 <suite name="PlaywrightSuite">
-        <test name="FirstTests">
-            <classes>
-                <class name="iotlab.test.tests.FirstTest"/>
-            </classes>
-        </test>
+    <test name="AAEM - Login">
+        <classes>
+            <class name="iotlab.test.tests.aaem.domainadmin.DomainAdminLoginTest"/>
+            <class name="iotlab.test.tests.aaem.farmer.FarmerLoginTest"/>
+        </classes>
+    </test>
 </suite>
-
